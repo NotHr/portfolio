@@ -1,4 +1,7 @@
 {
   "name": "nothr-in-astro",
-  "compatibility_date": "2025-03-26"
+  "compatibility_date": "2025-03-26",
+  "assets": {
+    "directory": "./dist"
+  }
 }
