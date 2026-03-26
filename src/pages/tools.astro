@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PillLink from '../components/PillLink.astro';
+import MobileDrawer from '../components/MobileDrawer.astro';
+import { toolCategories } from '../data/tools';
+
+const setup = [
+  { label: 'Machine',  value: 'ThinkPad X1 Carbon' },
+  { label: 'OS',       value: 'Arch Linux' },
+  { label: 'WM',       value: 'i3' },
+  { label: 'Shell',    value: 'fish' },
+  { label: 'Editor',   value: 'neovim' },
+  { label: 'Terminal', value: 'alacritty' },
+  { label: 'Server',   value: 'Debian — Ente, Gitea, n8n, Komodo' },
+  { label: 'Network',  value: 'Cloudflare Tunnel, zero open ports' },
+  { label: 'FPV',      value: 'RadioMaster Pocket · DJI O4 Pro · HDZero' },
+];
+---
+
+<BaseLayout title="Setup & Tools" description="My setup, tools, and things I use every day.">
+  <MobileDrawer />
+
+  <section style="padding: 2.5rem 0 0;" class="animate-in d1">
+    <h1 style="font-size: 1.125rem; font-weight: 400; color: var(--text-primary); margin-bottom: 0.35rem;">
+      Setup & Tools
+    </h1>
+    <p style="color: var(--text-muted);">The things I use and tinker with every day.</p>
+  </section>
+
+  <!-- Setup -->
+  <section class="animate-in d2" style="margin-top: 2.5rem;">
+    <p class="section-label">Setup</p>
+    {setup.map(({ label, value }) => (
+      <div class="setup-row">
+        <span class="setup-key">{label}</span>
+        <span class="setup-val">{value}</span>
+      </div>
+    ))}
+  </section>
+
+  <!-- Tool categories -->
+  {toolCategories.map((category, ci) => (
+    <section
+      class={`animate-in d${Math.min(ci + 3, 6)}`}
+      style="margin-top: 2.5rem;"
+    >
+      <p class="section-label">{category.label}</p>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        {category.tools.map((tool) => (
+          <PillLink
+            href={tool.href}
+            label={tool.name}
+            color={tool.color}
+            external={!!tool.href}
+          />
+        ))}
+      </div>
+    </section>
+  ))}
+
+  <div style="padding-bottom: 3rem;"></div>
+</BaseLayout>
+
+<style>
+  .setup-row {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 1rem;
+    align-items: baseline;
+    padding: 0.5rem 0;
+  }
+  .setup-key {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .setup-val {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+</style>

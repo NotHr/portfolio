@@ -1,0 +1,396 @@
+---
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const pages = [
+  { label: 'Home',     href: '/',         type: 'page', icon: 'home' },
+  { label: 'Blog',     href: '/blog',     type: 'page', icon: 'blog' },
+  { label: 'Work', href: '/work', type: 'page', icon: 'proj' },
+  { label: 'Tools',    href: '/tools',    type: 'page', icon: 'tool' },
+  { label: 'About',    href: '/about',    type: 'page', icon: 'user' },
+];
+
+const items = [
+  ...pages,
+  ...posts.map(p => ({
+    label: p.data.title,
+    href: `/blog/${p.id}`,
+    type: 'post',
+    icon: 'post',
+    date: p.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
+  })),
+];
+---
+
+<!-- Trigger hint in navbar (optional, shown by kbd shortcut display) -->
+<div id="cmd-overlay" aria-modal="true" role="dialog" aria-label="Search" style="display:none;">
+  <div id="cmd-backdrop"></div>
+  <div id="cmd-modal">
+    <div id="cmd-search-wrap">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input
+        id="cmd-input"
+        type="text"
+        placeholder="Search pages and posts…"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <kbd id="cmd-esc-hint">esc</kbd>
+    </div>
+    <div id="cmd-results"></div>
+    <div id="cmd-footer-hint">
+      <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+      <span><kbd>↵</kbd> open</span>
+      <span><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ items }}>
+  const overlay  = document.getElementById('cmd-overlay');
+  const backdrop = document.getElementById('cmd-backdrop');
+  const input    = document.getElementById('cmd-input');
+  const results  = document.getElementById('cmd-results');
+
+  let active = -1;
+
+  function open() {
+    overlay.style.display = 'flex';
+    input.value = '';
+    render('');
+    requestAnimationFrame(() => input.focus());
+    document.body.style.overflow = 'hidden';
+  }
+
+  function close() {
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+    active = -1;
+  }
+
+  function icon(type) {
+    const icons = {
+      home: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 12L12 3l9 9"/><path d="M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9"/></svg>',
+      blog: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5"/></svg>',
+      proj: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>',
+      tool: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>',
+      user: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>',
+      post: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+    };
+    return icons[type] ?? icons.post;
+  }
+
+  function render(query) {
+    const q = query.toLowerCase().trim();
+    const filtered = q
+      ? items.filter(i => i.label.toLowerCase().includes(q))
+      : items;
+
+    if (!filtered.length) {
+      results.innerHTML = '<div class="cmd-empty">No results</div>';
+      active = -1;
+      return;
+    }
+
+    // Group pages vs posts
+    const pageItems = filtered.filter(i => i.type === 'page');
+    const postItems = filtered.filter(i => i.type === 'post');
+
+    let html = '';
+    if (pageItems.length) {
+      html += `<div class="cmd-group-label">Pages</div>`;
+      pageItems.forEach((item, idx) => {
+        html += rowHtml(item, idx);
+      });
+    }
+    if (postItems.length) {
+      html += `<div class="cmd-group-label">Posts</div>`;
+      postItems.forEach((item, idx) => {
+        html += rowHtml(item, pageItems.length + idx);
+      });
+    }
+
+    results.innerHTML = html;
+    active = filtered.length ? 0 : -1;
+    setActive(active);
+
+    results.querySelectorAll('.cmd-row').forEach((row, i) => {
+      row.addEventListener('mouseenter', () => { active = i; setActive(i); });
+      row.addEventListener('click', () => navigate(filtered[i].href));
+    });
+
+    // store filtered for keyboard nav
+    results._filtered = filtered;
+  }
+
+  function rowHtml(item, idx) {
+    return `<div class="cmd-row" data-idx="${idx}">
+      <span class="cmd-row-icon">${icon(item.icon)}</span>
+      <span class="cmd-row-label">${item.label}</span>
+      ${item.date ? `<span class="cmd-row-date">${item.date}</span>` : ''}
+      <span class="cmd-row-enter">↵</span>
+    </div>`;
+  }
+
+  function setActive(idx) {
+    results.querySelectorAll('.cmd-row').forEach((r, i) => {
+      r.classList.toggle('cmd-row--active', i === idx);
+    });
+    const activeEl = results.querySelector('.cmd-row--active');
+    activeEl?.scrollIntoView({ block: 'nearest' });
+  }
+
+  function navigate(href) {
+    close();
+    window.location.href = href;
+  }
+
+  // Input
+  input.addEventListener('input', () => render(input.value));
+
+  input.addEventListener('keydown', (e) => {
+    const filtered = results._filtered ?? [];
+    if (!filtered.length) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      active = Math.min(active + 1, filtered.length - 1);
+      setActive(active);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      active = Math.max(active - 1, 0);
+      setActive(active);
+    } else if (e.key === 'Enter' && active >= 0) {
+      navigate(filtered[active].href);
+    }
+  });
+
+  // Ctrl+K / Cmd+K
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      overlay.style.display === 'none' ? open() : close();
+    }
+    if (e.key === 'Escape') close();
+  });
+
+  backdrop.addEventListener('click', close);
+</script>
+
+<style is:global>
+  #cmd-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 12vh;
+  }
+
+  #cmd-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  #cmd-modal {
+    position: relative;
+    width: min(580px, calc(100vw - 2rem));
+    background: var(--background);
+    border: 1px solid var(--border-primary);
+    border-radius: 14px;
+    box-shadow:
+      0 0 0 1px var(--border-muted),
+      0 32px 80px rgba(0, 0, 0, 0.25),
+      0 8px 24px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    animation: cmdIn 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  :global(.dark) #cmd-modal {
+    box-shadow:
+      0 0 0 1px var(--border-muted),
+      0 32px 80px rgba(0, 0, 0, 0.6),
+      0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  @keyframes cmdIn {
+    from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0)   scale(1); }
+  }
+
+  /* ── Search row ──────────────────────────────────────── */
+  #cmd-search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.125rem;
+    border-bottom: 1px solid var(--border-muted);
+    color: var(--text-muted);
+  }
+
+  #cmd-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+  }
+  #cmd-input::placeholder { color: var(--text-muted); opacity: 1; }
+
+  #cmd-esc-hint {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.45rem;
+    background: var(--surface);
+    border: 1px solid var(--border-muted);
+    border-radius: 5px;
+    font-size: 0.7rem;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    line-height: 1.4;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  /* ── Results list ────────────────────────────────────── */
+  #cmd-results {
+    max-height: 360px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.5rem 0;
+  }
+
+  /* thin scrollbar */
+  #cmd-results::-webkit-scrollbar { width: 4px; }
+  #cmd-results::-webkit-scrollbar-thumb { background: var(--border-muted); border-radius: 2px; }
+
+  .cmd-group-label {
+    padding: 0.6rem 1.125rem 0.3rem;
+    font-size: 0.675rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--text-muted);
+    font-family: var(--font-sans);
+  }
+
+  .cmd-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1.125rem;
+    cursor: pointer;
+    transition: background 0.08s;
+    margin: 0 0.375rem;
+    border-radius: 8px;
+  }
+
+  .cmd-row:hover {
+    background: var(--surface);
+  }
+
+  .cmd-row--active {
+    background: var(--accent-muted);
+  }
+
+  .cmd-row-icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    color: var(--text-muted);
+    width: 16px;
+  }
+
+  .cmd-row--active .cmd-row-icon {
+    color: var(--accent);
+  }
+
+  .cmd-row-label {
+    flex: 1;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: var(--font-sans);
+  }
+
+  .cmd-row-date {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .cmd-row-enter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: var(--accent-muted);
+    border: 1px solid var(--border-muted);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    color: var(--accent);
+    opacity: 0;
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+  }
+  .cmd-row--active .cmd-row-enter { opacity: 1; }
+
+  .cmd-empty {
+    padding: 2.5rem 1rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-family: var(--font-sans);
+  }
+
+  /* ── Footer hints ────────────────────────────────────── */
+  #cmd-footer-hint {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0.65rem 1.125rem;
+    border-top: 1px solid var(--border-muted);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-family: var(--font-sans);
+    background: var(--surface);
+  }
+
+  #cmd-footer-hint span {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  #cmd-footer-hint kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 0.3rem;
+    background: var(--background);
+    border: 1px solid var(--border-primary);
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    line-height: 1;
+    font-weight: 400;
+  }
+</style>

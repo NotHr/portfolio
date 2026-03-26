@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>nothr.in — Harshith Reddy</title>
+  <meta name="description" content="Linux enthusiast, builder, tinkerer. Daily driving Arch.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300;1,9..40,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #ffffff;
+      --fg: #171717;
+      --text-primary: #171717;
+      --text-muted: #737373;
+      --text-secondary: #525252;
+      --border-primary: rgb(0 0 0 / 0.15);
+      --border-muted: rgb(0 0 0 / 0.1);
+      --surface: rgb(0 0 0 / 0.03);
+      --surface-hover: rgb(0 0 0 / 0.06);
+      --accent: #2563eb;
+      --accent-fg: #eff6ff;
+      --accent-muted: rgb(37 99 235 / 0.1);
+      --btn-secondary-bg: #e5e5e5;
+      --btn-secondary-fg: #262626;
+      --toggle-color: #f59e0b;
+      --toggle-outline: rgb(245 158 11 / 0.4);
+      --link-underline: rgb(0 0 0 / 0.2);
+      --tag-bg: rgb(0 0 0 / 0.05);
+      --tag-fg: #525252;
+      --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-serif: 'Source Serif 4', Georgia, serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+    }
+
+    .dark {
+      --bg: #262626;
+      --fg: #ededed;
+      --text-primary: #f5f5f5;
+      --text-muted: #a3a3a3;
+      --text-secondary: #d4d4d4;
+      --border-primary: rgb(255 255 255 / 0.15);
+      --border-muted: rgb(255 255 255 / 0.1);
+      --surface: rgb(255 255 255 / 0.05);
+      --surface-hover: rgb(255 255 255 / 0.08);
+      --accent: #1e40af;
+      --accent-fg: #dbeafe;
+      --accent-muted: rgb(30 64 175 / 0.2);
+      --btn-secondary-bg: #404040;
+      --btn-secondary-fg: #fafafa;
+      --toggle-color: #d8b4fe;
+      --toggle-outline: rgb(216 180 254 / 0.4);
+      --link-underline: rgb(255 255 255 / 0.25);
+      --tag-bg: rgb(255 255 255 / 0.08);
+      --tag-fg: #a3a3a3;
+    }
+
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ——— LAYOUT ——— */
+    .page { display: flex; flex-direction: column; align-items: center; min-height: 100dvh; width: 100%; }
+    .container { max-width: 42rem; width: 100%; padding: 0 1.5rem; }
+    .container-wide { max-width: 48rem; width: 100%; padding: 0 1.5rem; }
+
+    /* Hide all pages by default */
+    .page-view { display: none; }
+    .page-view.active { display: block; }
+
+    /* ——— NAV ——— */
+    .site-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.5rem 0; max-width: 90rem; margin: 0 auto; width: 100%;
+    }
+    .nav-left, .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .nav-left a, .nav-right a {
+      font-size: 0.875rem; transition: color 0.15s; cursor: pointer;
+    }
+    .nav-left a { color: var(--text-muted); }
+    .nav-left a.active { color: var(--text-primary); }
+    .nav-left a:hover { color: var(--text-primary); }
+    .nav-right a { color: var(--text-muted); }
+    .nav-right a:hover { color: var(--text-primary); }
+
+    .theme-toggle {
+      width: 18px; height: 18px; border-radius: 50%; border: none;
+      background: var(--toggle-color); cursor: pointer;
+      transition: background 0.2s, outline-color 0.2s;
+      outline: 0px solid var(--toggle-outline); flex-shrink: 0;
+    }
+    .theme-toggle:focus-visible, .theme-toggle:hover { outline-width: 3px; }
+
+    /* ——— DIVIDER ——— */
+    .divider { height: 1px; width: 100%; background: var(--border-muted); }
+
+    /* ——— BUTTONS ——— */
+    .btn {
+      display: inline-flex; align-items: center; padding: 0.5rem 1.125rem;
+      font-family: var(--font-sans); font-size: 0.8125rem; font-weight: 500;
+      border-radius: 999px; border: 1px solid transparent;
+      cursor: pointer; transition: all 0.15s; text-decoration: none; line-height: 1;
+    }
+    .btn-primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-secondary { background: var(--btn-secondary-bg); color: var(--btn-secondary-fg); border-color: var(--btn-secondary-bg); }
+    .btn-secondary:hover { opacity: 0.85; }
+
+    /* ——— PILL LINKS (Find me / Tools style) ——— */
+    .pill-grid { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 0.375rem;
+      font-size: 0.8125rem; padding: 0.4rem 0.8rem;
+      border-radius: 999px; border: 1px solid var(--border-muted);
+      color: var(--text-muted); transition: all 0.15s; cursor: pointer;
+      text-decoration: none;
+    }
+    .pill:hover { color: var(--text-primary); border-color: var(--border-primary); background: var(--surface); }
+    .pill svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .pill .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ——— SECTION LABEL ——— */
+    .section-label {
+      font-family: var(--font-sans); font-size: 0.75rem; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-muted); margin-bottom: 0.75rem;
+    }
+
+    /* ——— HERO ——— */
+    .hero { display: flex; flex-direction: column; gap: 1.5rem; padding: 4.5rem 0 2rem; }
+    .hero-header { display: flex; flex-direction: column; gap: 0.25rem; }
+    .hero-title { font-size: 1.125rem; font-weight: 400; letter-spacing: -0.01em; }
+    .hero-sub { font-size: 0.9375rem; color: var(--text-muted); }
+    .hero-actions { display: flex; gap: 0.5rem; }
+
+    /* ——— BIO ——— */
+    .bio {
+      padding: 2rem 0;
+      font-size: 0.9375rem; line-height: 1.7; color: var(--text-primary);
+    }
+    .bio a, .prose a {
+      text-decoration: underline; text-underline-offset: 4px;
+      text-decoration-color: var(--link-underline); transition: text-decoration-color 0.15s;
+    }
+    .bio a:hover, .prose a:hover { text-decoration-color: var(--text-primary); }
+    .bio code, .prose code {
+      font-family: var(--font-mono); font-size: 0.8125rem;
+      background: var(--surface); padding: 0.15em 0.4em;
+      border-radius: 4px; border: 1px solid var(--border-muted);
+    }
+
+    /* ——— TERMINAL ——— */
+    .terminal { border: 1px solid var(--border-muted); border-radius: 10px; overflow: hidden; }
+    .terminal-bar {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-muted);
+      background: var(--surface);
+    }
+    .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .terminal-dot.r { background: #ff5f57; }
+    .terminal-dot.y { background: #febc2e; }
+    .terminal-dot.g { background: #28c840; }
+    .terminal-title { font-family: var(--font-mono); font-size: 0.6875rem; color: var(--text-muted); margin-left: 0.25rem; }
+    .terminal-body {
+      padding: 1rem 1.25rem; font-family: var(--font-mono);
+      font-size: 0.8125rem; line-height: 1.8; color: var(--text-muted); background: var(--bg);
+    }
+    .terminal-body .prompt { color: var(--text-primary); }
+    .terminal-body .cmd { color: var(--text-primary); font-weight: 500; }
+    .terminal-body .comment { opacity: 0.5; }
+
+    /* ——— POST LIST ——— */
+    .post-item {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 0.75rem 0; border-bottom: 1px solid var(--border-muted);
+      transition: all 0.15s; cursor: pointer;
+    }
+    .post-item:first-child { border-top: 1px solid var(--border-muted); }
+    .post-title { font-size: 0.9375rem; color: var(--text-primary); transition: color 0.15s; }
+    .post-item:hover .post-title { color: var(--text-muted); }
+    .post-date {
+      font-family: var(--font-mono); font-size: 0.75rem;
+      color: var(--text-muted); white-space: nowrap; margin-left: 1.5rem;
+    }
+
+    /* ——— FEATURES DL ——— */
+    .features-dl { display: grid; grid-template-columns: auto 1fr; gap: 0.5rem 2rem; }
+    .features-dl dt { font-size: 0.9375rem; color: var(--text-primary); padding: 0.375rem 0; }
+    .features-dl dd { font-size: 0.9375rem; color: var(--text-muted); padding: 0.375rem 0; }
+
+    /* ——— PAGE HEADER (blog listing, tools, about) ——— */
+    .page-header { padding: 4.5rem 0 0; display: flex; flex-direction: column; gap: 0.25rem; }
+    .page-header h1 { font-size: 1.125rem; font-weight: 400; }
+    .page-header .subtitle { font-size: 0.9375rem; color: var(--text-muted); }
+
+    /* ——— BLOG LISTING ——— */
+    .blog-article {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 1rem 0; cursor: pointer;
+    }
+    .blog-article + .blog-article { border-top: 1px solid var(--border-muted); }
+    .blog-article-info { display: flex; flex-direction: column; gap: 0.125rem; }
+    .blog-article-title {
+      font-size: 0.9375rem; color: var(--text-primary); transition: all 0.15s;
+    }
+    .blog-article:hover .blog-article-title { text-decoration: underline; text-underline-offset: 4px; }
+    .blog-article-date { font-size: 0.875rem; color: var(--text-muted); }
+    .blog-article-tags { display: flex; gap: 0.375rem; margin-top: 0.375rem; }
+    .tag {
+      font-size: 0.6875rem; padding: 0.2rem 0.5rem; border-radius: 999px;
+      background: var(--tag-bg); color: var(--tag-fg); font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    /* ——— BLOG POST ——— */
+    .post-header { padding: 4.5rem 0 0; display: flex; flex-direction: column; gap: 0.25rem; }
+    .post-header h1 { font-size: 1.5rem; font-weight: 400; letter-spacing: -0.02em; }
+    .post-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 0; color: var(--text-muted); font-size: 0.875rem;
+    }
+    .post-meta-left { display: flex; align-items: center; gap: 0.5rem; }
+    .post-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--surface); display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 500; color: var(--text-muted);
+      border: 1px solid var(--border-muted);
+    }
+
+    .prose {
+      font-size: 0.9375rem; line-height: 1.75;
+      color: var(--text-secondary);
+    }
+    .prose h2 {
+      font-size: 1.125rem; font-weight: 500; color: var(--text-primary);
+      margin-top: 2rem; margin-bottom: 0.75rem;
+    }
+    .prose h3 {
+      font-size: 1rem; font-weight: 500; color: var(--text-primary);
+      margin-top: 1.5rem; margin-bottom: 0.5rem;
+    }
+    .prose p { margin-bottom: 1rem; }
+    .prose ul, .prose ol { margin-bottom: 1rem; padding-left: 1.25rem; }
+    .prose li { margin-bottom: 0.375rem; }
+    .prose img { border-radius: 0.75rem; margin: 1.5rem 0; max-width: 100%; }
+    .prose blockquote {
+      border-left: 2px solid var(--border-primary); padding-left: 1rem;
+      color: var(--text-muted); margin: 1.5rem 0; font-style: italic;
+    }
+    .prose pre {
+      font-family: var(--font-mono); font-size: 0.8125rem;
+      background: var(--surface); padding: 1rem 1.25rem;
+      border-radius: 8px; border: 1px solid var(--border-muted);
+      overflow-x: auto; margin: 1rem 0; line-height: 1.6;
+    }
+    .prose .back-link {
+      display: inline-flex; align-items: center; gap: 0.375rem;
+      font-size: 0.8125rem; color: var(--text-muted);
+      margin-top: 2rem; cursor: pointer;
+    }
+    .prose .back-link:hover { color: var(--text-primary); }
+
+    /* ——— TOOLS GRID ——— */
+    .tools-category { margin-bottom: 2.5rem; }
+    .tools-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.5rem;
+    }
+    .tool-card {
+      display: flex; align-items: center; gap: 0.625rem;
+      padding: 0.75rem 1rem; border: 1px solid var(--border-muted);
+      border-radius: 10px; font-size: 0.8125rem; color: var(--text-muted);
+      transition: all 0.15s; text-decoration: none;
+    }
+    .tool-card:hover { border-color: var(--border-primary); color: var(--text-primary); background: var(--surface); }
+    .tool-icon { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ——— ABOUT ——— */
+    .about-section { margin-bottom: 2.5rem; }
+    .about-section h2 {
+      font-size: 0.9375rem; font-weight: 500; color: var(--text-primary);
+      margin-bottom: 0.75rem;
+    }
+    .about-section p { font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 0.75rem; }
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+    .timeline-item {
+      display: grid; grid-template-columns: 5.5rem 1fr; gap: 1rem;
+      padding: 0.75rem 0; border-bottom: 1px solid var(--border-muted);
+    }
+    .timeline-item:first-child { border-top: 1px solid var(--border-muted); }
+    .timeline-year { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); padding-top: 0.125rem; }
+    .timeline-content { font-size: 0.9375rem; color: var(--text-primary); }
+    .timeline-sub { font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.125rem; }
+
+    /* ——— FOOTER ——— */
+    .site-footer {
+      border-top: 1px solid var(--border-muted);
+      padding: 1.5rem 0; margin-top: 3rem;
+    }
+    .footer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-bottom: 2rem; }
+    .footer-col { display: flex; flex-direction: column; gap: 0.5rem; }
+    .footer-heading { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+    .footer-col a { font-size: 0.875rem; color: var(--text-primary); cursor: pointer; }
+    .footer-col a:hover { color: var(--text-muted); }
+    .footer-bottom {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.75rem; color: var(--text-muted);
+      padding-top: 1.5rem; border-top: 1px solid var(--border-muted);
+    }
+
+    /* ——— ANIMATIONS ——— */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in { animation: fadeUp 0.45s ease both; }
+    .d1 { animation-delay: 0.04s; } .d2 { animation-delay: 0.08s; }
+    .d3 { animation-delay: 0.12s; } .d4 { animation-delay: 0.16s; }
+    .d5 { animation-delay: 0.2s; }  .d6 { animation-delay: 0.24s; }
+
+    /* ——— MOBILE DRAWER ——— */
+    .mobile-menu-btn {
+      display: none; background: none; border: none;
+      cursor: pointer; color: var(--text-primary); padding: 0.25rem;
+    }
+    .drawer-overlay {
+      position: fixed; inset: 0; z-index: 100; background: rgb(0 0 0 / 0.4);
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: all; }
+    .drawer {
+      position: fixed; top: 0; right: 0; bottom: 0; width: 14rem; z-index: 101;
+      background: var(--bg); border-left: 1px solid var(--border-primary);
+      padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;
+      transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .drawer.open { transform: translateX(0); }
+    .drawer-close {
+      align-self: flex-end; background: none; border: none;
+      cursor: pointer; color: var(--text-muted); padding: 0.25rem;
+    }
+    .drawer-links { display: flex; flex-direction: column; gap: 0.75rem; }
+    .drawer-links a { font-size: 0.875rem; color: var(--text-muted); cursor: pointer; }
+    .drawer-links a:hover { color: var(--text-primary); }
+
+    @media (max-width: 640px) {
+      .nav-right .desktop-only { display: none; }
+      .mobile-menu-btn { display: block; }
+      .features-dl { grid-template-columns: 1fr; gap: 0.125rem; }
+      .features-dl dd { padding-bottom: 1rem; }
+      .post-item { flex-direction: column; gap: 0.125rem; }
+      .post-date { margin-left: 0; }
+      .footer-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+      .post-meta { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+      .timeline-item { grid-template-columns: 4.5rem 1fr; }
+      .blog-article { flex-direction: column; gap: 0.25rem; }
+      .tools-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page">
+
+    <!-- ═══════════════════ NAVBAR ═══════════════════ -->
+    <div class="container" style="padding:0 1.5rem;">
+      <nav class="site-nav">
+        <div class="nav-left">
+          <a onclick="navigate('home')" class="nav-link" data-page="home">Home</a>
+          <a onclick="navigate('blog')" class="nav-link desktop-only" data-page="blog">Blog</a>
+          <a onclick="navigate('tools')" class="nav-link desktop-only" data-page="tools">Tools</a>
+          <a onclick="navigate('about')" class="nav-link desktop-only" data-page="about">About</a>
+        </div>
+        <div class="nav-right">
+          <a href="https://github.com/nothr" target="_blank" class="desktop-only">GitHub</a>
+          <a href="https://x.com/nothr_in" target="_blank" class="desktop-only">X</a>
+          <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"></button>
+          <button class="mobile-menu-btn" onclick="openDrawer()" aria-label="Open menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <!-- ═══════════════════ HOME PAGE ═══════════════════ -->
+    <div id="page-home" class="page-view active">
+      <div class="container">
+        <div class="hero animate-in">
+          <div class="hero-header">
+            <div class="hero-title">Harshith Reddy <span style="color:var(--text-muted);font-weight:300;">/ nothr</span></div>
+            <div class="hero-sub">Linux enthusiast, builder, tinkerer</div>
+          </div>
+          <div class="hero-actions">
+            <a onclick="navigate('blog')" class="btn btn-primary">Read Blog</a>
+            <a href="https://nothr.in/resume.pdf" target="_blank" class="btn btn-secondary">Resume</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="container"><div class="divider animate-in d1"></div></div>
+
+      <div class="container">
+        <div class="bio animate-in d2">
+          I'm a senior at GITAM Hyderabad and a Linux and FOSS enthusiast. I daily drive
+          <code>Arch Linux</code> with <code>i3</code> and <code>fish</code>. I spend most
+          of my time tinkering with systems — from home servers and self-hosting to building
+          FPV drones and working on ML pipelines. I write with tools like LaTeX and Pandoc,
+          and host everything on my own infrastructure.
+        </div>
+      </div>
+
+      <div class="container animate-in d3">
+        <div class="terminal">
+          <div class="terminal-bar">
+            <div class="terminal-dot r"></div>
+            <div class="terminal-dot y"></div>
+            <div class="terminal-dot g"></div>
+            <span class="terminal-title">~</span>
+          </div>
+          <div class="terminal-body">
+            <div><span class="prompt">❯</span> <span class="cmd">neofetch --off</span></div>
+            <div>harshith@archlinux</div>
+            <div><span class="comment">───────────────</span></div>
+            <div>OS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arch Linux x86_64</div>
+            <div>WM &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i3</div>
+            <div>Shell &nbsp;&nbsp;&nbsp;&nbsp;fish</div>
+            <div>Editor &nbsp;&nbsp;&nbsp;nvim</div>
+            <div>Terminal &nbsp;alacritty</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container" style="margin-top:2rem;"><div class="divider"></div></div>
+
+      <div class="container" style="padding-top:2rem;">
+        <div class="animate-in d4">
+          <div class="section-label">Find me</div>
+          <div class="pill-grid">
+            <a href="https://github.com/nothr" target="_blank" class="pill">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub
+            </a>
+            <a href="https://linkedin.com/in/mhrsth" target="_blank" class="pill">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+              LinkedIn
+            </a>
+            <a href="https://x.com/nothr_in" target="_blank" class="pill">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              X
+            </a>
+            <a href="mailto:me@nothr.in" class="pill">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              Email
+            </a>
+            <a href="https://matrix.to/#/@nothr:matrix.org" target="_blank" class="pill">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M.632.55v22.9H2.28V24H0V0h2.28v.55zm7.043 7.26v1.157h.033c.309-.443.683-.784 1.117-1.024.433-.245.936-.365 1.5-.365.54 0 1.033.107 1.488.32.45.214.773.553.967 1.018.264-.39.611-.727 1.04-1.01.424-.282.93-.424 1.517-.424.448 0 .862.065 1.242.188.38.123.7.317.96.582.26.265.457.6.591 1.004.13.404.197.877.197 1.418v5.712h-2.127V11.18c0-.263-.013-.518-.04-.762a1.64 1.64 0 00-.2-.644.99.99 0 00-.442-.44c-.196-.11-.463-.166-.795-.166-.332 0-.6.064-.803.189a1.27 1.27 0 00-.473.5 2.1 2.1 0 00-.23.7c-.04.264-.06.539-.06.831v4.502H9.94V11.37c0-.232-.005-.465-.018-.697a2.16 2.16 0 00-.136-.645.916.916 0 00-.396-.468c-.184-.12-.446-.18-.787-.18a1.54 1.54 0 00-.397.063 1.27 1.27 0 00-.462.247 1.46 1.46 0 00-.382.537c-.1.227-.152.538-.152.935v4.75H5.046V7.81zm13.637 15.95V.55h-1.648V0H24v24h-2.336v-.55z"/></svg>
+              Matrix
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="container" style="margin-top:2rem;"><div class="divider"></div></div>
+
+      <!-- Recent posts -->
+      <div class="container" style="padding-top:2rem; padding-bottom:2rem;">
+        <div class="animate-in d5">
+          <div class="section-label">Writing</div>
+          <a onclick="navigate('post-two-years')" class="post-item">
+            <span class="post-title">Two good years of using Linux</span>
+            <span class="post-date">16 Aug 2025</span>
+          </a>
+          <a onclick="navigate('post-npm')" class="post-item">
+            <span class="post-title">How NPM broke my server</span>
+            <span class="post-date">20 Oct 2024</span>
+          </a>
+          <a onclick="navigate('post-one-year')" class="post-item">
+            <span class="post-title">One Year of Using Linux</span>
+            <span class="post-date">02 Jun 2024</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="container"><div class="divider"></div></div>
+
+      <div class="container" style="padding:2rem 1.5rem;">
+        <dl class="features-dl animate-in d6">
+          <dt>Daily driver</dt>
+          <dd>Arch Linux on a ThinkPad. i3, fish, neovim. No DE, no bloat.</dd>
+          <dt>Home server</dt>
+          <dd>Debian-based, running Ente, Cloudflare Tunnel, and whatever else needs a home.</dd>
+          <dt>FPV pilot</dt>
+          <dd>RadioMaster Pocket, DJI O4 Pro, HDZero goggles. Building custom quads.</dd>
+        </dl>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ BLOG LISTING ═══════════════════ -->
+    <div id="page-blog" class="page-view">
+      <div class="container">
+        <div class="page-header animate-in">
+          <h1>Blog</h1>
+          <div class="subtitle">Notes on Linux, self-hosting, and building things.</div>
+        </div>
+      </div>
+
+      <div class="container" style="margin-top:2rem;"><div class="divider animate-in d1"></div></div>
+
+      <div class="container" style="padding-top:1.5rem; padding-bottom:3rem;">
+        <div class="animate-in d2">
+
+          <div class="section-label" style="margin-top:1rem;">2025</div>
+          <a onclick="navigate('post-two-years')" class="blog-article">
+            <div class="blog-article-info">
+              <div class="blog-article-title">Two good years of using Linux</div>
+              <div class="blog-article-date">August 16, 2025</div>
+              <div class="blog-article-tags"><span class="tag">linux</span><span class="tag">tech</span></div>
+            </div>
+          </a>
+
+          <div class="section-label" style="margin-top:2rem;">2024</div>
+          <a onclick="navigate('post-npm')" class="blog-article">
+            <div class="blog-article-info">
+              <div class="blog-article-title">How NPM broke my server</div>
+              <div class="blog-article-date">October 20, 2024</div>
+              <div class="blog-article-tags"><span class="tag">linux</span><span class="tag">hosting</span><span class="tag">pnpm</span></div>
+            </div>
+          </a>
+          <a onclick="navigate('post-one-year')" class="blog-article">
+            <div class="blog-article-info">
+              <div class="blog-article-title">One Year of Using Linux</div>
+              <div class="blog-article-date">June 2, 2024</div>
+              <div class="blog-article-tags"><span class="tag">linux</span><span class="tag">tech</span></div>
+            </div>
+          </a>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ POST: Two Years ═══════════════════ -->
+    <div id="page-post-two-years" class="page-view">
+      <div class="container">
+        <div class="post-header animate-in">
+          <h1>Two good years of using Linux</h1>
+        </div>
+        <div class="post-meta animate-in d1">
+          <div class="post-meta-left">
+            <div class="post-avatar">HR</div>
+            <span>Posted by <a href="https://x.com/nothr_in" target="_blank" style="text-decoration:underline;text-underline-offset:3px;">Harshith</a></span>
+          </div>
+          <time>August 16, 2025</time>
+        </div>
+        <div class="divider animate-in d2"></div>
+        <article class="prose animate-in d3" style="padding:2rem 0 3rem;">
+          <p>I haven't realized that it's been two good years of using Linux as a full fledged OS. I have distro-hopped between Arch, Debian and Fedora, but Arch feels like home. To be honest I hate Red Hat products (I don't exactly know why) and Debian is the good old distro which is stuck in 2022 or 2023. And Arch is blazingly fast and I like its package manager which is too good.</p>
+
+          <h2>The Arch Experience</h2>
+
+          <p>Arch has been my daily driver since the last two years. I have been using <code>i3</code> because I don't need to touch the mouse again. I have switched to <code>KDE</code> for a while but now I am daily driving <code>i3</code>. And I have been using <code>alacritty</code> with <code>zsh</code> but now moving to <code>fish</code>.</p>
+
+          <p>I have also been using <code>zed</code> for a really long time as my editor which performs better than VS Code. There are so many programs that are really good and help me a lot.</p>
+
+          <p>I have also started using <code>typst</code> as well for reports and assignments. Even though I love LaTeX, typst seems really compromising. But I am still experimenting with it.</p>
+
+          <p>Now that it's been two years, I might make my homeserver reliable. Currently I host <code>n8n</code>, <code>komodo</code>, <code>gitea</code> and <code>ente</code>. I might change my private VPS provider to Hetzner soon.</p>
+
+          <p>I guess Arch will be my forever distro. But I am still exploring Arch as a whole distro. I might start exploring the different kernel variants.</p>
+
+          <p>The only issue I currently face is my laptop doesn't support <code>S3</code> sleeping state. I might start hacking into the issue to support S3. Someone on the internet suggested that we need to make changes to the <code>dsdt</code> but I should research more about it.</p>
+
+          <div class="back-link" onclick="navigate('blog')">← Back to blog</div>
+        </article>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ POST: NPM ═══════════════════ -->
+    <div id="page-post-npm" class="page-view">
+      <div class="container">
+        <div class="post-header animate-in">
+          <h1>How NPM broke my server</h1>
+        </div>
+        <div class="post-meta animate-in d1">
+          <div class="post-meta-left">
+            <div class="post-avatar">HR</div>
+            <span>Posted by <a href="https://x.com/nothr_in" target="_blank" style="text-decoration:underline;text-underline-offset:3px;">Harshith</a></span>
+          </div>
+          <time>October 20, 2024</time>
+        </div>
+        <div class="divider animate-in d2"></div>
+        <article class="prose animate-in d3" style="padding:2rem 0 3rem;">
+          <p>I own a small <strong>1vCPU</strong> and <strong>1GB</strong> RAM Digital Ocean Droplet. Which costs me around 500rs per month.</p>
+
+          <p>Last week I was trying to build a Documentation website with <a href="https://docusaurus.io/">Docusaurus</a> for a project. I pushed the project to GitHub and cloned it to my server.</p>
+
+          <p>Then I started installing with npm. I ran <code>npm install</code> and it started installing the dependencies. After a few minutes, I got an error saying that the server is out of memory. I was surprised because I have only 1GB of RAM and the server was not doing anything else. The CPU and Disk usage was very high.</p>
+
+          <p>I checked the memory usage with <code>htop</code>. But I couldn't figure it out because the server was unresponsive. I had to reboot the server to get it back online.</p>
+
+          <p>I tried to install the dependencies again, but the same thing happened. I was frustrated and started searching for the issue. I found that npm uses a lot of memory to install the dependencies. I tried to increase the swap memory, but it didn't help.</p>
+
+          <p>Then I was fed up using npm and according to a few reddit posts they mentioned that <code>pnpm</code> is a good alternative. So I installed pnpm with <code>npm install -g pnpm</code>. It worked and I tried to install the dependencies with <code>pnpm install</code>. It worked like a charm.</p>
+
+          <h2>Reason behind the issue</h2>
+
+          <ul>
+            <li>NPM installs dependencies in a flat structure. So if a package is used in multiple dependencies, it will be installed multiple times.</li>
+            <li>NPM uses a lot of memory to install dependencies. So if you have a small server, it will run out of memory.</li>
+            <li>NPM uses a lot of disk space. If you have limited disk space, it will run out.</li>
+          </ul>
+
+          <h2>Conclusion</h2>
+
+          <ul>
+            <li>If you have a small server, use <code>pnpm</code> instead of <code>npm</code>.</li>
+            <li>If you have a large server, <code>npm</code> works fine.</li>
+            <li>If you want to save disk space, <code>yarn</code> or <code>pnpm</code> are good alternatives.</li>
+          </ul>
+
+          <h3>Links</h3>
+          <ul>
+            <li><a href="https://pnpm.io/">pnpm</a></li>
+            <li><a href="https://docusaurus.io/">Docusaurus</a></li>
+            <li><a href="https://www.digitalocean.com">Digital Ocean</a></li>
+          </ul>
+
+          <div class="back-link" onclick="navigate('blog')">← Back to blog</div>
+        </article>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ POST: One Year ═══════════════════ -->
+    <div id="page-post-one-year" class="page-view">
+      <div class="container">
+        <div class="post-header animate-in">
+          <h1>One Year of Using Linux</h1>
+        </div>
+        <div class="post-meta animate-in d1">
+          <div class="post-meta-left">
+            <div class="post-avatar">HR</div>
+            <span>Posted by <a href="https://x.com/nothr_in" target="_blank" style="text-decoration:underline;text-underline-offset:3px;">Harshith</a></span>
+          </div>
+          <time>June 2, 2024</time>
+        </div>
+        <div class="divider animate-in d2"></div>
+        <article class="prose animate-in d3" style="padding:2rem 0 3rem;">
+          <p>It's been a year that I have been daily driving Linux as my main machine. So far, the journey has been great. I have come to know a lot of things and have been using many FOSS tools.</p>
+
+          <p>I have tried a few main distros like Debian, Ubuntu, Fedora, and Arch. I liked Fedora and Arch because they are fast and good. Finally, I have chosen Arch over Fedora because I like the package manager and the rolling release.</p>
+
+          <p>I started with Gnome as my WM, later moved to KDE, but I feel like both are bloated, and I need to use my mouse every time to do something. I tried DWM, but I feel like it's not for me. Then, one of my friends suggested i3, which is so good and suited my needs. Currently, I use i3. I am very fascinated by how this works.</p>
+
+          <p>Later, I found some tools which I use a lot. <code>auto-cpufreq</code> is one of the programs which increased my battery life significantly.</p>
+
+          <div class="back-link" onclick="navigate('blog')">← Back to blog</div>
+        </article>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ TOOLS PAGE ═══════════════════ -->
+    <div id="page-tools" class="page-view">
+      <div class="container">
+        <div class="page-header animate-in">
+          <h1>Tools & Interests</h1>
+          <div class="subtitle">The things I use and tinker with every day.</div>
+        </div>
+      </div>
+
+      <div class="container" style="margin-top:2rem;"><div class="divider animate-in d1"></div></div>
+
+      <div class="container" style="padding-top:2rem; padding-bottom:3rem;">
+
+        <div class="tools-category animate-in d2">
+          <div class="section-label">System</div>
+          <div class="pill-grid">
+            <a href="https://archlinux.org" target="_blank" class="pill"><span class="dot" style="background:#1793d1;"></span>Arch Linux</a>
+            <a href="https://i3wm.org" target="_blank" class="pill"><span class="dot" style="background:#689d6a;"></span>i3wm</a>
+            <a href="https://fishshell.com" target="_blank" class="pill"><span class="dot" style="background:#96b5b4;"></span>Fish Shell</a>
+            <a href="https://neovim.io" target="_blank" class="pill"><span class="dot" style="background:#57a143;"></span>Neovim</a>
+            <a href="https://alacritty.org" target="_blank" class="pill"><span class="dot" style="background:#f0a030;"></span>Alacritty</a>
+            <a href="https://www.zed.dev" target="_blank" class="pill"><span class="dot" style="background:#084ccf;"></span>Zed</a>
+            <a href="https://typst.app" target="_blank" class="pill"><span class="dot" style="background:#239dad;"></span>Typst</a>
+            <span class="pill"><span class="dot" style="background:#6a9fb5;"></span>LaTeX</span>
+          </div>
+        </div>
+
+        <div class="tools-category animate-in d3">
+          <div class="section-label">Development</div>
+          <div class="pill-grid">
+            <a href="https://pytorch.org" target="_blank" class="pill"><span class="dot" style="background:#ee4c2c;"></span>PyTorch</a>
+            <a href="https://tinygrad.org" target="_blank" class="pill"><span class="dot" style="background:#ff6f00;"></span>tinygrad</a>
+            <a href="https://github.com/ggerganov/llama.cpp" target="_blank" class="pill"><span class="dot" style="background:#e34f26;"></span>llama.cpp</a>
+            <span class="pill"><span class="dot" style="background:#3178c6;"></span>TypeScript</span>
+            <span class="pill"><span class="dot" style="background:#3776ab;"></span>Python</span>
+            <span class="pill"><span class="dot" style="background:#00ADD8;"></span>Flutter / Dart</span>
+            <span class="pill"><span class="dot" style="background:#f7df1e;"></span>Node.js</span>
+          </div>
+        </div>
+
+        <div class="tools-category animate-in d4">
+          <div class="section-label">Self-hosting</div>
+          <div class="pill-grid">
+            <a href="https://ente.io" target="_blank" class="pill"><span class="dot" style="background:#00b33c;"></span>Ente</a>
+            <a href="https://gitea.io" target="_blank" class="pill"><span class="dot" style="background:#609926;"></span>Gitea</a>
+            <a href="https://n8n.io" target="_blank" class="pill"><span class="dot" style="background:#ea4b71;"></span>n8n</a>
+            <a href="https://komodo.dev" target="_blank" class="pill"><span class="dot" style="background:#4e8ee9;"></span>Komodo</a>
+            <span class="pill"><span class="dot" style="background:#f38020;"></span>Cloudflare Tunnel</span>
+            <span class="pill"><span class="dot" style="background:#a855f7;"></span>Debian Server</span>
+          </div>
+        </div>
+
+        <div class="tools-category animate-in d5">
+          <div class="section-label">Hardware & FPV</div>
+          <div class="pill-grid">
+            <span class="pill"><span class="dot" style="background:#f0544c;"></span>FPV Drones</span>
+            <span class="pill"><span class="dot" style="background:#ff4444;"></span>RadioMaster Pocket</span>
+            <span class="pill"><span class="dot" style="background:#2d9cdb;"></span>DJI O4 Pro</span>
+            <span class="pill"><span class="dot" style="background:#6fcf97;"></span>HDZero Goggles</span>
+            <span class="pill"><span class="dot" style="background:#828282;"></span>EdgeTX / ELRS</span>
+            <span class="pill"><span class="dot" style="background:#bdbdbd;"></span>Betaflight</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════ ABOUT PAGE ═══════════════════ -->
+    <div id="page-about" class="page-view">
+      <div class="container">
+        <div class="page-header animate-in">
+          <h1>About</h1>
+          <div class="subtitle">A bit more context.</div>
+        </div>
+      </div>
+
+      <div class="container" style="margin-top:2rem;"><div class="divider animate-in d1"></div></div>
+
+      <div class="container" style="padding-top:2rem; padding-bottom:3rem;">
+
+        <div class="about-section animate-in d2">
+          <p>I'm Harshith Reddy — most places online I go by <strong>nothr</strong>. I'm a final year student at GITAM Hyderabad studying computer science, and I spend most of my free time building things, breaking things, and figuring out how things work.</p>
+
+          <p>I've been daily driving Arch Linux for over two years now. My setup is minimal — <code>i3</code>, <code>fish</code>, <code>neovim</code>, <code>alacritty</code> — and I prefer it that way. I run a Debian home server where I self-host services like Ente, Gitea, and n8n, all exposed through Cloudflare Tunnel.</p>
+
+          <p>On the development side, I work across the stack — from Flutter apps with on-device ML (llama.cpp via Dart FFI) to computer vision pipelines (YOLOv8 + DBSCAN + ResNet-34 Bi-LSTM) for exam malpractice detection. I'm currently contributing to <a href="https://tinygrad.org" target="_blank" style="text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--link-underline);">tinygrad</a>, adding Qwen3 model support, and actively comparing it with PyTorch for my projects.</p>
+
+          <p>When I'm not in front of a screen, I'm usually flying FPV drones — building custom quads with RadioMaster Pocket, DJI O4 Pro, and HDZero goggles. The overlap between firmware hacking (EdgeTX, ELRS, Betaflight) and my Linux tinkering instinct is probably not a coincidence.</p>
+        </div>
+
+        <div class="about-section animate-in d3">
+          <h2>Timeline</h2>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-year">2025</div>
+              <div>
+                <div class="timeline-content">Contributing to tinygrad (Qwen3 support)</div>
+                <div class="timeline-sub">Open source · ML frameworks</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">2025</div>
+              <div>
+                <div class="timeline-content">Exam malpractice detection system</div>
+                <div class="timeline-sub">YOLOv8 + DBSCAN + ResNet-34 Bi-LSTM · IEEE paper</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">2024</div>
+              <div>
+                <div class="timeline-content">Built ErzyCall — WhatsApp chatbot for Indian SMBs</div>
+                <div class="timeline-sub">Cloudflare Workers · Meta Business API · Claude AI</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">2024</div>
+              <div>
+                <div class="timeline-content">Set up Debian home server</div>
+                <div class="timeline-sub">Ente, Gitea, n8n, Cloudflare Tunnel</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">2023</div>
+              <div>
+                <div class="timeline-content">Switched to Arch Linux full-time</div>
+                <div class="timeline-sub">i3, fish, neovim — never looked back</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">2022</div>
+              <div>
+                <div class="timeline-content">Started at GITAM Hyderabad</div>
+                <div class="timeline-sub">B.Tech Computer Science</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-section animate-in d4">
+          <h2>Get in touch</h2>
+          <div class="pill-grid">
+            <a href="mailto:me@nothr.in" class="pill">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              me@nothr.in
+            </a>
+            <a href="https://github.com/nothr" target="_blank" class="pill">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub
+            </a>
+            <a href="https://x.com/nothr_in" target="_blank" class="pill">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              X
+            </a>
+            <a href="https://linkedin.com/in/mhrsth" target="_blank" class="pill">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+              LinkedIn
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════ FOOTER ═══════════════════ -->
+    <div class="container">
+      <div class="site-footer">
+        <div class="footer-grid">
+          <div class="footer-col">
+            <div class="footer-heading">Pages</div>
+            <a onclick="navigate('home')">Home</a>
+            <a onclick="navigate('blog')">Blog</a>
+            <a onclick="navigate('tools')">Tools</a>
+            <a onclick="navigate('about')">About</a>
+          </div>
+          <div class="footer-col">
+            <div class="footer-heading">Links</div>
+            <a href="https://github.com/nothr" target="_blank">GitHub</a>
+            <a href="https://linkedin.com/in/mhrsth" target="_blank">LinkedIn</a>
+            <a href="https://x.com/nothr_in" target="_blank">X</a>
+          </div>
+          <div class="footer-col">
+            <div class="footer-heading">More</div>
+            <a href="https://nothr.in/resume.pdf" target="_blank">Resume</a>
+            <a href="mailto:me@nothr.in">Email</a>
+            <a href="https://nothr.in/rss.xml" target="_blank">RSS</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© Harshith Reddy 2025</span>
+          <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MOBILE DRAWER -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <button class="drawer-close" onclick="closeDrawer()" aria-label="Close menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="drawer-links">
+      <a onclick="navigate('home');closeDrawer();">Home</a>
+      <a onclick="navigate('blog');closeDrawer();">Blog</a>
+      <a onclick="navigate('tools');closeDrawer();">Tools</a>
+      <a onclick="navigate('about');closeDrawer();">About</a>
+      <a href="https://github.com/nothr" target="_blank" onclick="closeDrawer()">GitHub</a>
+      <a href="https://x.com/nothr_in" target="_blank" onclick="closeDrawer()">X</a>
+    </div>
+    <div style="margin-top:auto;">
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"></button>
+    </div>
+  </div>
+
+  <script>
+    // ——— THEME ———
+    function getTheme() {
+      const s = localStorage.getItem('theme');
+      if (s) return s;
+      return matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+    }
+    function applyTheme(t) {
+      document.documentElement.classList.toggle('dark', t === 'dark');
+      localStorage.setItem('theme', t);
+    }
+    function toggleTheme() {
+      applyTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark');
+    }
+    applyTheme(getTheme());
+
+    // ——— DRAWER ———
+    function openDrawer() {
+      document.getElementById('drawer').classList.add('open');
+      document.getElementById('drawerOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeDrawer() {
+      document.getElementById('drawer').classList.remove('open');
+      document.getElementById('drawerOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // ——— ROUTER ———
+    function navigate(page) {
+      // hide all
+      document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+      // show target
+      const target = document.getElementById('page-' + page);
+      if (target) target.classList.add('active');
+      // update hash
+      history.pushState(null, '', '#' + page);
+      // update nav active states
+      document.querySelectorAll('.nav-left .nav-link').forEach(a => {
+        const pg = a.getAttribute('data-page');
+        if (!pg) return;
+        // blog posts → blog is active
+        const activePage = page.startsWith('post-') ? 'blog' : page;
+        a.classList.toggle('active', pg === activePage);
+      });
+      // re-trigger animations
+      target.querySelectorAll('.animate-in').forEach(el => {
+        el.style.animation = 'none';
+        el.offsetHeight; // reflow
+        el.style.animation = '';
+      });
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    // handle initial hash
+    window.addEventListener('DOMContentLoaded', () => {
+      const hash = location.hash.replace('#', '') || 'home';
+      navigate(hash);
+    });
+    window.addEventListener('popstate', () => {
+      const hash = location.hash.replace('#', '') || 'home';
+      navigate(hash);
+    });
+  </script>
+</body>
+</html>

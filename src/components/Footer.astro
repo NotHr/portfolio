@@ -1,0 +1,134 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+
+const isHome = Astro.url.pathname === '/';
+---
+
+<footer class="footer">
+  <div class="site-container footer-inner">
+
+    <!-- Column grid — hidden on home, shown everywhere else -->
+    <div class={`footer-grid${isHome ? ' footer-grid--hidden' : ''}`}>
+      {[
+        {
+          heading: 'Pages',
+          links: [
+            { label: 'Home',     href: '/' },
+            { label: 'Blog',     href: '/blog' },
+            { label: 'Work', href: '/work' },
+            { label: 'Tools',    href: '/tools' },
+            { label: 'About',   href: '/about' },
+          ],
+        },
+        {
+          heading: 'Links',
+          links: [
+            { label: 'GitHub',   href: 'https://github.com/nothr',       external: true },
+            { label: 'LinkedIn', href: 'https://linkedin.com/in/mhrsth', external: true },
+            { label: 'X',        href: 'https://x.com/nothr_in',         external: true },
+          ],
+        },
+        {
+          heading: 'More',
+          links: [
+            { label: 'Resume', href: '/resume.pdf' },
+            { label: 'Email',  href: 'mailto:me@nothr.in' },
+            { label: 'RSS',    href: '/rss.xml' },
+          ],
+        },
+      ].map((col) => (
+        <div class="footer-col">
+          <span class="footer-heading">{col.heading}</span>
+          {col.links.map((link) => (
+            <a
+              href={link.href}
+              target={link.external ? '_blank' : undefined}
+              rel={link.external ? 'noopener noreferrer' : undefined}
+              class="footer-link"
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      ))}
+    </div>
+
+    <!-- Bottom row -->
+    <div class="footer-bottom">
+      <span class="footer-copy">© Harshith Reddy 2025</span>
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <span id="visitor-count" style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);"></span>
+        <ThemeToggle />
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+<script>
+  // Visitor counter via counterapi.dev
+  fetch('https://api.counterapi.dev/v1/nothr-in/visits/up')
+    .then(r => r.json())
+    .then(d => {
+      const el = document.getElementById('visitor-count');
+      if (el && d?.count) el.textContent = `${Number(d.count).toLocaleString()} visits`;
+    })
+    .catch(() => {});
+</script>
+
+<style>
+  .footer {
+    font-size: 0.875rem;
+    border-top: 1px solid #e5e5e5;
+    padding: 1.5rem 0;
+    margin-top: auto;
+  }
+
+  :global(.dark) .footer {
+    border-top-color: #1e3a5f;
+  }
+
+  .footer-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  /* Grid: visible on all pages except home */
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+  .footer-grid--hidden { display: none; }
+
+  .footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .footer-heading {
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+  }
+
+  .footer-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .footer-link:hover { color: var(--text-muted); }
+
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+  }
+
+  @media (max-width: 640px) {
+    .footer-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>

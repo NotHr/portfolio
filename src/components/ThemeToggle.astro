@@ -1,0 +1,42 @@
+---
+---
+
+<button
+  id="theme-toggle"
+  aria-label="Toggle theme"
+  style="width: 18px; height: 18px; border-radius: 50%; border: none; cursor: pointer; padding: 0; flex-shrink: 0; outline-offset: 2px;"
+></button>
+
+<script>
+  const AMBER = '#f59e0b';
+  const PURPLE = '#d8b4fe';
+  const AMBER_OUTLINE = 'rgba(245,158,11,0.4)';
+  const PURPLE_OUTLINE = 'rgba(216,180,254,0.4)';
+
+  function applyToggleColor(btn: HTMLButtonElement) {
+    const isDark = document.documentElement.classList.contains('dark');
+    btn.style.background = isDark ? PURPLE : AMBER;
+  }
+
+  const btn = document.getElementById('theme-toggle') as HTMLButtonElement | null;
+  if (btn) {
+    applyToggleColor(btn);
+
+    btn.addEventListener('mouseenter', () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      btn.style.outline = `3px solid ${isDark ? PURPLE_OUTLINE : AMBER_OUTLINE}`;
+    });
+    btn.addEventListener('mouseleave', () => { btn.style.outline = 'none'; });
+    btn.addEventListener('focus', () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      btn.style.outline = `3px solid ${isDark ? PURPLE_OUTLINE : AMBER_OUTLINE}`;
+    });
+    btn.addEventListener('blur', () => { btn.style.outline = 'none'; });
+
+    btn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      applyToggleColor(btn);
+    });
+  }
+</script>

@@ -1,0 +1,173 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PillLink from "../components/PillLink.astro";
+import MobileDrawer from "../components/MobileDrawer.astro";
+
+const timeline = [
+    {
+        year: "2025",
+        title: "Exam malpractice detection system",
+        subtitle: "YOLOv16 + DBSCAN + ResNet-34 for multi-person detection",
+    },
+    {
+        year: "2024",
+        title: "Set up Debian home server",
+        subtitle: "Running Ente, Gitea, n8n, Komodo, Cloudflare Tunnel",
+    },
+    {
+        year: "2023",
+        title: "Switched to Arch Linux full-time",
+        subtitle: "i3wm, fish, neovim, alacritty",
+    },
+    {
+        year: "2022",
+        title: "Started at GITAM Hyderabad",
+        subtitle: "B.Tech Computer Science",
+    },
+];
+
+const contactLinks = [
+    {
+        label: "harshith@nothr.in",
+        href: "mailto:harshith@nothr.in",
+        icon: "email",
+    },
+    { label: "GitHub", href: "https://github.com/nothr", icon: "github" },
+    { label: "X", href: "https://x.com/nothr_in", icon: "x" },
+    {
+        label: "LinkedIn",
+        href: "https://linkedin.com/in/mhrsth",
+        icon: "linkedin",
+    },
+];
+---
+
+<BaseLayout title="About" description="A bit more context.">
+    <MobileDrawer />
+
+    <section style="padding: 2.5rem 0 0;" class="animate-in d1">
+        <h1
+            style="font-size: 1.125rem; font-weight: 400; color: var(--text-primary); margin-bottom: 0.35rem;"
+        >
+            About
+        </h1>
+        <p style="color: var(--text-muted);">A bit more context.</p>
+    </section>
+
+    <div class="divider animate-in d2"></div>
+
+    <!-- Bio -->
+    <section class="animate-in d2" style="color: var(--text-secondary);">
+        <p style="margin-bottom: 1.25rem;">
+            I'm Harshith Reddy, a final-year computer science student at GITAM
+            Hyderabad. I got into Linux seriously around 2022 and haven't looked
+            back — currently running
+            <code
+                style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--surface); border: 1px solid var(--border-muted); border-radius: 4px; padding: 0.1em 0.35em;"
+                >Arch Linux</code
+            >
+            as my daily driver with
+            <code
+                style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--surface); border: 1px solid var(--border-muted); border-radius: 4px; padding: 0.1em 0.35em;"
+                >i3</code
+            >
+            as my window manager. No DE, no bloat, no excuses.
+        </p>
+        <p style="margin-bottom: 1.25rem;">
+            On the side I run a home server on a Debian box — it hosts
+            <a
+                href="https://ente.io"
+                target="_blank"
+                rel="noopener"
+                style="color: var(--text-secondary); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--link-underline);"
+                >Ente</a
+            >,
+            <a
+                href="https://gitea.io"
+                target="_blank"
+                rel="noopener"
+                style="color: var(--text-secondary); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--link-underline);"
+                >Gitea</a
+            >,
+            <a
+                href="https://n8n.io"
+                target="_blank"
+                rel="noopener"
+                style="color: var(--text-secondary); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--link-underline);"
+                >n8n</a
+            >, and more, all tunneled over Cloudflare. I like owning my data.
+        </p>
+        <p style="margin-bottom: 1.25rem;">
+            On the ML side I've been doing
+            <code
+                style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--surface); border: 1px solid var(--border-muted); border-radius: 4px; padding: 0.1em 0.35em;"
+                >YOLOv16</code
+            >
+            work, and poke around with
+            <code
+                style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--surface); border: 1px solid var(--border-muted); border-radius: 4px; padding: 0.1em 0.35em;"
+                >llama.cpp</code
+            >
+            when I have time.
+        </p>
+        <p>
+            Outside the screen: FPV drones, RadioMaster Pocket, DJI O4 Pro, and
+            HDZero goggles. I fly, build, and crash.
+        </p>
+    </section>
+
+    <div class="divider animate-in d3"></div>
+
+    <!-- Timeline -->
+    <section class="animate-in d3" style="margin-bottom: 2rem;">
+        <h2
+            style="font-size: 0.9375rem; font-weight: 500; color: var(--text-primary); margin-bottom: 1rem;"
+        >
+            Timeline
+        </h2>
+        <div>
+            {
+                timeline.map((item, i) => (
+                    <div
+                        style={`display: grid; grid-template-columns: 2.5rem 1fr; gap: 1rem; align-items: start; padding: 0.65rem 0; ${i < timeline.length - 1 ? "border-bottom: 1px solid var(--border-muted);" : ""}`}
+                    >
+                        <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); padding-top: 0.1rem;">
+                            {item.year}
+                        </span>
+                        <div>
+                            <p style="font-size: 0.9375rem; color: var(--text-primary); margin: 0 0 0.1rem;">
+                                {item.title}
+                            </p>
+                            <p style="font-size: 0.8125rem; color: var(--text-muted); margin: 0;">
+                                {item.subtitle}
+                            </p>
+                        </div>
+                    </div>
+                ))
+            }
+        </div>
+    </section>
+
+    <div class="divider animate-in d4"></div>
+
+    <!-- Get in touch -->
+    <section class="animate-in d4" style="padding-bottom: 3rem;">
+        <h2
+            style="font-size: 0.9375rem; font-weight: 500; color: var(--text-primary); margin-bottom: 1rem;"
+        >
+            Get in touch
+        </h2>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            {
+                contactLinks.map((link) => (
+                    <PillLink
+                        href={link.href}
+                        label={link.label}
+                        icon={link.icon}
+                        external={true}
+                    />
+                ))
+            }
+        </div>
+    </section>
+</BaseLayout>

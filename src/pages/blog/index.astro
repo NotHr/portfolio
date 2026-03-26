@@ -1,0 +1,83 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MobileDrawer from '../../components/MobileDrawer.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = (await getCollection('blog')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+
+// Group by year
+const postsByYear = allPosts.reduce<Record<number, typeof allPosts>>((acc, post) => {
+  const year = post.data.date.getFullYear();
+  if (!acc[year]) acc[year] = [];
+  acc[year].push(post);
+  return acc;
+}, {});
+
+const years = Object.keys(postsByYear)
+  .map(Number)
+  .sort((a, b) => b - a);
+---
+
+<BaseLayout title="Blog" description="Notes on Linux, self-hosting, and building things.">
+  <MobileDrawer />
+
+  <section style="padding: 2.5rem 0 0;" class="animate-in d1">
+    <h1 style="font-size: 1.125rem; font-weight: 400; color: var(--text-primary); margin-bottom: 0.35rem;">
+      Blog
+    </h1>
+    <p style="color: var(--text-muted);">Notes on Linux, self-hosting, and building things.</p>
+  </section>
+
+  <div class="divider animate-in d2"></div>
+
+  {
+    years.map((year, yi) => (
+      <section class={`animate-in d${Math.min(yi + 3, 6)}`} style="margin-bottom: 2rem;">
+        <p class="section-label">{year}</p>
+        <div>
+          {postsByYear[year].map((post, i) => (
+            <a
+              href={`/blog/${post.id}`}
+              style={`display: flex; flex-direction: column; gap: 0.35rem; padding: 0.75rem 0; text-decoration: none; ${i < postsByYear[year].length - 1 ? 'border-bottom: 1px solid var(--border-muted);' : ''}`}
+            >
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                <span
+                  style="font-size: 0.9375rem; color: var(--text-primary); transition: color 0.15s ease;"
+                  class="post-title"
+                >
+                  {post.data.title}
+                </span>
+                <time
+                  datetime={post.data.date.toISOString()}
+                  style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; flex-shrink: 0;"
+                >
+                  {post.data.date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </time>
+              </div>
+              {post.data.tags.length > 0 && (
+                <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                  {post.data.tags.map((tag) => (
+                    <span class="tag">{tag}</span>
+                  ))}
+                </div>
+              )}
+            </a>
+          ))}
+        </div>
+      </section>
+    ))
+  }
+</BaseLayout>
+
+<style>
+  a:hover .post-title {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>

@@ -1,0 +1,262 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import MobileDrawer from "../components/MobileDrawer.astro";
+
+const experience = [
+    {
+        org: "Erzy Inc",
+        role: "Full Stack Engineer",
+        period: "Dec 2025 – Present",
+        bullets: [],
+    },
+    {
+        org: "Freelance",
+        role: "Independent",
+        period: "Jan 2025 – Present",
+        bullets: [
+            "Built and maintained Discord bots for a 6k active user community",
+            "Designed scalable architecture for a VoiceAI application",
+            "Developed RAG agents to automate customer support",
+            "Built resolvchecker.xyz — leaderboard checker for the Resolv airdrop",
+        ],
+    },
+    {
+        org: "Google Developer Group on Campus · GITAM Hyderabad",
+        role: "Cloud Computing (GCP) Lead",
+        period: "Oct 2024 – Jul 2025",
+        bullets: ["Taught students how to leverage Google Cloud Functions"],
+    },
+    {
+        org: "COGAAN Club",
+        role: "Coding Lead",
+        period: "Jun 2024 – Jun 2025",
+        bullets: ["Organized and led a workshop on self-hosting and Linux"],
+    },
+];
+
+const projects = [
+    {
+        name: "Exam Malpractice Detection",
+        description:
+            "Real-time cheating detection system using YOLOv8 for person detection, DBSCAN for spatial clustering, and ResNet-34 for gaze classification. Deployed in exam halls with live alerting.",
+        status: "wip",
+        tech: ["YOLOv16", "ResNet-34", "DBSCAN", "Python", "OpenCV"],
+        year: "2025",
+        link: null,
+    },
+    {
+        name: "nothr.in",
+        description:
+            "This site — built with Astro v6 and Tailwind CSS v4. Static, fast, no JS frameworks.",
+        status: "wip",
+        tech: ["Astro", "Tailwind CSS v4", "TypeScript"],
+        year: "2025",
+        link: "https://nothr.in",
+    },
+    {
+        name: "Home Server Stack",
+        description:
+            "Self-hosted Debian server running Ente (photo backup), Gitea (git), n8n (automations), and Komodo — all tunneled over Cloudflare with zero open ports.",
+        status: "wip",
+        tech: ["Debian", "Docker", "Cloudflare Tunnel", "Ente", "n8n"],
+        year: "2024",
+        link: null,
+    },
+    {
+        name: "llama.cpp experiments",
+        description:
+            "Local inference of Llama, Mistral, and Qwen models on CPU/GPU using llama.cpp. Explored quantization strategies (Q4_K_M, Q8_0) and benchmark tooling.",
+        status: "archived",
+        tech: ["llama.cpp", "C++", "GGUF", "Python"],
+        year: "2024",
+        link: null,
+    },
+];
+
+const statusLabel: Record<string, string> = {
+    shipped: "shipped",
+    wip: "in progress",
+    archived: "archived",
+};
+---
+
+<BaseLayout
+    title="Work"
+    description="Experience, projects, and things I've built."
+>
+    <MobileDrawer />
+
+    <section style="padding: 2.5rem 0 0;" class="animate-in d1">
+        <h1
+            style="font-size: 1.125rem; font-weight: 400; color: var(--text-primary); margin-bottom: 0.35rem;"
+        >
+            Work
+        </h1>
+        <p style="color: var(--text-muted);">
+            Experience and things I've built.
+        </p>
+    </section>
+
+    <!-- ── EXPERIENCE ──────────────────────────────────────── -->
+    <section class="animate-in d2" style="margin-top: 2.5rem;">
+        <p class="section-label">Experience</p>
+        <div>
+            {
+                experience.map((job, i) => (
+                    <div
+                        style={`display: grid; grid-template-columns: 9rem 1fr; gap: 1rem; align-items: start; padding: 0.9rem 0; ${i < experience.length - 1 ? "border-bottom: 1px solid var(--border-muted);" : ""}`}
+                        class="exp-row"
+                    >
+                        <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); padding-top: 0.15rem; line-height: 1.4;">
+                            {job.period}
+                        </span>
+                        <div>
+                            <div style="display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.15rem;">
+                                <span style="font-size: 0.9375rem; color: var(--text-primary); font-weight: 500;">
+                                    {job.role}
+                                </span>
+                                <span style="color: var(--text-muted); font-size: 0.875rem;">
+                                    ·
+                                </span>
+                                <span style="font-size: 0.875rem; color: var(--text-muted);">
+                                    {job.org}
+                                </span>
+                            </div>
+                            {job.bullets.length > 0 && (
+                                <ul style="margin: 0.5rem 0 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.25rem;">
+                                    {job.bullets.map((b) => (
+                                        <li style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;">
+                                            {b}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    </div>
+                ))
+            }
+        </div>
+    </section>
+
+    <!-- ── PROJECTS ────────────────────────────────────────── -->
+    <section
+        class="animate-in d3"
+        style="margin-top: 2.5rem; padding-bottom: 3rem;"
+    >
+        <div
+            style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1rem;"
+        >
+            <p class="section-label" style="margin-bottom: 0;">Projects</p>
+            <span
+                style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);"
+                >{projects.length} total</span
+            >
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0;">
+            {
+                projects.map((p, i) => (
+                    <div
+                        style={`display: grid; grid-template-columns: 9rem 1fr; gap: 1rem; align-items: start; padding: 0.9rem 0; ${i < projects.length - 1 ? "border-bottom: 1px solid var(--border-muted);" : ""}`}
+                        class="exp-row"
+                    >
+                        <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); padding-top: 0.15rem;">
+                            {p.year}
+                        </span>
+                        <div>
+                            <div style="display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.25rem;">
+                                {p.link ? (
+                                    <a
+                                        href={p.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style="font-size: 0.9375rem; color: var(--text-primary); font-weight: 500; text-decoration: none; transition: color 0.15s;"
+                                        class="proj-link"
+                                    >
+                                        {p.name} ↗
+                                    </a>
+                                ) : (
+                                    <span style="font-size: 0.9375rem; color: var(--text-primary); font-weight: 500;">
+                                        {p.name}
+                                    </span>
+                                )}
+                                <span class={`status-badge status-${p.status}`}>
+                                    {statusLabel[p.status]}
+                                </span>
+                            </div>
+                            <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; margin: 0 0 0.5rem;">
+                                {p.description}
+                            </p>
+                            <div style="display: flex; gap: 0.3rem; flex-wrap: wrap;">
+                                {p.tech.map((t) => (
+                                    <span class="tag">{t}</span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                ))
+            }
+        </div>
+    </section>
+</BaseLayout>
+
+<style>
+    .exp-row {
+        transition: background 0.12s;
+    }
+
+    @media (max-width: 540px) {
+        .exp-row {
+            display: flex !important;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+    }
+
+    .proj-link:hover {
+        color: var(--text-muted) !important;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        font-family: var(--font-mono);
+        font-size: 0.6375rem;
+        font-weight: 500;
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
+        flex-shrink: 0;
+        border: 1px solid var(--border-muted);
+        background: var(--surface);
+        color: var(--text-muted);
+    }
+
+    .status-shipped {
+        background: rgb(34 197 94 / 0.08);
+        color: #16a34a;
+        border-color: rgb(34 197 94 / 0.2);
+    }
+    :global(.dark) .status-shipped {
+        color: #4ade80;
+        background: rgb(34 197 94 / 0.1);
+        border-color: rgb(74 222 128 / 0.2);
+    }
+
+    .status-wip {
+        background: rgb(234 179 8 / 0.08);
+        color: #ca8a04;
+        border-color: rgb(234 179 8 / 0.2);
+    }
+    :global(.dark) .status-wip {
+        color: #facc15;
+        background: rgb(234 179 8 / 0.1);
+        border-color: rgb(234 179 8 / 0.2);
+    }
+
+    .status-archived {
+        background: var(--surface);
+        color: var(--text-muted);
+        border-color: var(--border-muted);
+    }
+</style>

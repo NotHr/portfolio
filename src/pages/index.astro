@@ -1,0 +1,117 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PillLink from '../components/PillLink.astro';
+import MobileDrawer from '../components/MobileDrawer.astro';
+import { getCollection } from 'astro:content';
+import { socialLinks } from '../data/links';
+
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+---
+
+<BaseLayout>
+  <MobileDrawer />
+
+  <!-- Hero -->
+  <section class="animate-in d1" style="padding: 2.5rem 0 0;">
+    <h1 style="font-size: 1.125rem; font-weight: 400; color: var(--text-primary); margin-bottom: 0.35rem;">
+      Harshith Reddy / nothr
+    </h1>
+    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+      Linux enthusiast, builder, tinkerer
+    </p>
+    <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+      <a href="/blog" class="btn-primary">Read Blog</a>
+      <a href="/resume.pdf" class="btn-secondary">Resume</a>
+    </div>
+  </section>
+
+  <!-- Bio -->
+  <section class="animate-in d2" style="margin-top: 2.5rem;">
+    <p style="color: var(--text-secondary); margin-bottom: 1.25rem;">
+      I'm a senior at GITAM Hyderabad studying computer science. I daily drive
+      <code>Arch Linux</code>
+      on a ThinkPad, run a self-hosted home server, and tinker with ML systems, FPV drones,
+      and whatever breaks next. I use
+      <code>i3</code>,
+      <code>fish</code>,
+      <code>nvim</code>,
+      and
+      <code>alacritty</code>.
+    </p>
+  </section>
+
+  <!-- Find me -->
+  <section class="animate-in d3" style="margin-top: 2.5rem;">
+    <p class="section-label">Find me</p>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      {socialLinks.map((link) => (
+        <PillLink href={link.href} label={link.label} icon={link.icon} external={true} />
+      ))}
+    </div>
+  </section>
+
+  <!-- Writing -->
+  <section class="animate-in d4" style="margin-top: 2.5rem;">
+    <p class="section-label">Writing</p>
+    <div>
+      {posts.map((post) => (
+        <a
+          href={`/blog/${post.id}`}
+          class="post-row"
+        >
+          <span class="post-title">{post.data.title}</span>
+          <time datetime={post.data.date.toISOString()}>
+            {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+          </time>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <div style="padding-bottom: 3rem;"></div>
+
+</BaseLayout>
+
+<style>
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    background: var(--surface);
+    border: 1px solid var(--border-muted);
+    border-radius: 4px;
+    padding: 0.1em 0.35em;
+    color: var(--text-primary);
+  }
+
+  .post-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.65rem 0;
+    text-decoration: none;
+    color: var(--text-primary);
+  }
+  .post-row:hover .post-title { color: var(--text-muted); }
+
+  .post-title {
+    font-size: 0.9375rem;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.15s ease;
+  }
+
+  .post-row time {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+</style>
