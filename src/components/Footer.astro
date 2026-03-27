@@ -56,25 +56,12 @@ const isHome = Astro.url.pathname === '/';
     <!-- Bottom row -->
     <div class="footer-bottom">
       <span class="footer-copy">© Harshith Reddy 2025</span>
-      <div style="display:flex;align-items:center;gap:1rem;">
-        <span id="visitor-count" style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);"></span>
-        <ThemeToggle />
-      </div>
+      <ThemeToggle />
     </div>
 
   </div>
 </footer>
 
-<script>
-  // Visitor counter via counterapi.dev
-  fetch('https://api.counterapi.dev/v1/nothr-in/visits/up')
-    .then(r => r.json())
-    .then(d => {
-      const el = document.getElementById('visitor-count');
-      if (el && d?.count) el.textContent = `${Number(d.count).toLocaleString()} visits`;
-    })
-    .catch(() => {});
-</script>
 
 <style>
   .footer {
